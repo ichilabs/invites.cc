@@ -1,15 +1,17 @@
-# Start from golang base image
-FROM golang:alpine
+FROM golang:1.19
 
-RUN apk update && apk add --no-cache git && apk add --no-cach bash && apk add build-base
-
-RUN mkdir /app
+# Définir le répertoire de travail
 WORKDIR /app
 
-RUN go install -v ./...
+RUN go mod init invites.cc
 
-RUN go build -o /build
+RUN go get github.com/lib/pq
 
+# Copier le code source de l'application
+COPY . .
+
+# Exposer le port sur lequel l'application écoute
 EXPOSE 8080
 
-CMD [ "/build" ]
+# Définir la commande pour exécuter l'application
+CMD ["go", "run", "main.go"]

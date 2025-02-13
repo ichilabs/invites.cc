@@ -1,36 +1,38 @@
 services:
   app:
+    build: .
     container_name: golang_container
     # TODO: Remove basic setting after test
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=db_test
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_NAME=${POSTGRES_DB}
+      - DB_HOST=${POSTGRES_HOST}
+      - DB_PORT=${PORT}
     tty: true
-    build: .
     ports:
       - 8000:8080
     restart: on-failure
     volumes:
       - .:/app
     depends_on:
-      - db
+      - postgres_invites
 
-  db:
-    container_name: postgres
+  postgres_invites:
+    container_name: postgres_invites
     image: postgres
+    env_file:
+      - ./.env
     environment:
       # TODO: Remove basic setting after test
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PGDATA: /data/postgres
-      POSTGRES_DB: bank
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - db:/data/postgres
     ports:
-      - "5332:5432"
+      - 5432:5432
     networks:
       - db
     restart: on-failure
